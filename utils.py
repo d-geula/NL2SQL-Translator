@@ -1,7 +1,9 @@
-import openai
-import sqlite3
-import pandas as pd
 # import os
+import sqlite3
+
+import openai
+import pandas as pd
+
 # openai.api_key = os.getenv("OPENAI_API_KEY")
 # or
 # openai.api_key = "####"
@@ -24,14 +26,10 @@ def get_openai_response(prompt, agent):
 
 
 def process_query(query):
-    # Create a connection to the database
-    conn = sqlite3.connect('files/nba.sqlite')
 
+    conn = sqlite3.connect('files/nba.sqlite')
     # Execute the query and load the results into a pandas dataframe
     df = pd.read_sql_query(query, conn)
-
-    # Close the connection
     conn.close()
 
-    # Return the data
     return df

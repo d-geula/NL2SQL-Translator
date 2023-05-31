@@ -1,6 +1,8 @@
 
 import gradio as gr
+
 import utils
+
 
 def nl_to_sql(prompt):
     
@@ -21,15 +23,16 @@ def nl_to_sql(prompt):
 
 with gr.Blocks() as app:
 
-    # gr.Markdown("Start typing below and then click **Run** to see the output.")
+    # gr.Markdown("something something")
 
     with gr.Row():
         inp = gr.Textbox(placeholder="What would you like to know?", lines=1, label="Question:")
-        out = gr.Textbox(lines=1, label="Data summary:")
-    df_out = gr.DataFrame(label="Query Results:")
+        summ_out = gr.Textbox(lines=1, label="Data summary:")
+
+    df_out = gr.DataFrame(label="Data:")
 
     btn = gr.Button("Execute query")
-    btn.click(fn=nl_to_sql, inputs=inp, outputs=[out, df_out])
+    btn.click(fn=nl_to_sql, inputs=inp, outputs=[summ_out, df_out])
 
     gr.Examples(
         ["How many players are there with a first name that begins with 'John'?",
