@@ -1,3 +1,4 @@
+from pathlib import Path
 
 import gradio as gr
 
@@ -40,7 +41,7 @@ callback = gr.CSVLogger() # See docs: https://gradio.app/using-flagging/#flaggin
 
 with gr.Blocks() as app:
 
-    # gr.Markdown("App description")
+    gr.Markdown(Path('description.md').read_text())
 
     with gr.Row():
         with gr.Column(scale=2):
