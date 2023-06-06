@@ -44,21 +44,22 @@ with gr.Blocks() as app:
     gr.Markdown(Path('description.md').read_text())
 
     with gr.Row():
-        with gr.Column(scale=2):
+        with gr.Column():
+            summ_out = gr.Textbox(lines=3, interactive=False, label="Data summary:")
             inp = gr.Textbox(placeholder="What would you like to know?", lines=1, label="Question:")
             with gr.Row():
-                btn_run = gr.Button("Execute query")
-                btn_flag = gr.Button("Flag", variant="stop")
+                btn_run = gr.Button("Submit", variant="primary")
+                btn_flag = gr.Button("Flag")
             gr.Examples(examples, inp)
 
-        with gr.Column(scale=3):
-            summ_out = gr.Textbox(lines=1, label="Data summary:")
-            sql_out = gr.Textbox(lines=1, label="SQL query:")
-            df_out = gr.DataFrame()
+    with gr.Row():
+        with gr.Accordion("Raw Data", open=False):
+            sql_out = gr.TextArea(lines=1, interactive=False, label="SQL query:") # Probably unnecessary other than for debugging
+            df_out = gr.DataFrame(interactive=False)
 
     callback.setup([inp, summ_out, sql_out, df_out], "flagged_data_points")
 
-    btn_run.click(fn=nl_to_sql, inputs=inp, outputs=[summ_out, sql_out ,df_out])
+    btn_run.click(fn=nl_to_sql, inputs=inp, outputs=[summ_out, sql_out, df_out])
     btn_flag.click(lambda *args: callback.flag(args), [inp, summ_out, sql_out, df_out], None, preprocess=False)
 
 app.launch()
