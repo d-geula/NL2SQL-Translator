@@ -11,9 +11,9 @@ examples = [
     ["List all players with a last name of Jordan"],
 ]
 
+
 # Main function
 def nl_to_sql(prompt):
-    
     # Translate the natural language query to SQL using the OpenAI API
     sql_query = utils.get_openai_response(prompt, "sql_agent")
 
@@ -22,8 +22,8 @@ def nl_to_sql(prompt):
 
     # Describe the results of the query using the OpenAI API
     query_description = utils.get_openai_response(
-        f'Question: {prompt}\nSQL Query: {sql_query}\nQuery Result: {query_result}', 
-        "descriptor_agent"
+        f"Question: {prompt}\nSQL Query: {sql_query}\nQuery Result: {query_result}",
+        "descriptor_agent",
     )
 
     return query_description, sql_query, query_result
@@ -37,16 +37,19 @@ app = gr.Interface(
     examples=examples,
 ) """
 
-callback = gr.CSVLogger() # See docs: https://gradio.app/using-flagging/#flagging-with-blocks
+callback = (
+    gr.CSVLogger()
+)  # See docs: https://gradio.app/using-flagging/#flagging-with-blocks
 
 with gr.Blocks() as app:
-
-    gr.Markdown(Path('description.md').read_text())
+    gr.Markdown(Path("description.md").read_text())
 
     with gr.Row():
         with gr.Column():
             summ_out = gr.Textbox(lines=3, interactive=False, label="Data summary:")
-            inp = gr.Textbox(placeholder="What would you like to know?", lines=1, label="Question:")
+            inp = gr.Textbox(
+                placeholder="What would you like to know?", lines=1, label="Question:"
+            )
             with gr.Row():
                 btn_run = gr.Button("Submit", variant="primary")
                 btn_flag = gr.Button("Flag")
@@ -54,12 +57,19 @@ with gr.Blocks() as app:
 
     with gr.Row():
         with gr.Accordion("Raw Data", open=False):
-            sql_out = gr.TextArea(lines=1, interactive=False, label="SQL query:") # Probably unnecessary other than for debugging
+            sql_out = gr.TextArea(
+                lines=1, interactive=False, label="SQL query:"
+            )  # Probably unnecessary other than for debugging
             df_out = gr.DataFrame(interactive=False)
 
     callback.setup([inp, summ_out, sql_out, df_out], "flagged_data_points")
 
     btn_run.click(fn=nl_to_sql, inputs=inp, outputs=[summ_out, sql_out, df_out])
-    btn_flag.click(lambda *args: callback.flag(args), [inp, summ_out, sql_out, df_out], None, preprocess=False)
+    btn_flag.click(
+        lambda *args: callback.flag(args),
+        [inp, summ_out, sql_out, df_out],
+        None,
+        preprocess=False,
+    )
 
 app.launch()
