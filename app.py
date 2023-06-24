@@ -1,8 +1,7 @@
 from pathlib import Path
 
 import gradio as gr
-
-import utils
+from langchain import OpenAI, SQLDatabase, SQLDatabaseChain
 
 # Define some example queries
 examples = [
@@ -11,42 +10,39 @@ examples = [
     ["List all players with a last name of Jordan"],
 ]
 
+
 # Main function
-def nl_to_sql(prompt):
-    
-    # Translate the natural language query to SQL using the OpenAI API
-    sql_query = utils.get_openai_response(prompt, "sql_agent")
+def nl_to_sql(prompt: str):
+    db_path = "files/nba.sqlite"
+    db = SQLDatabase.from_uri(f"sqlite:///{db_path}", sample_rows_in_table_info=2)
+    llm = OpenAI(temperature=0, verbose=False)  # type: ignore
 
-    # Process the SQL query
-    query_result = utils.process_query(sql_query)
-
-    # Describe the results of the query using the OpenAI API
-    query_description = utils.get_openai_response(
-        f'Question: {prompt}\nSQL Query: {sql_query}\nQuery Result: {query_result}', 
-        "descriptor_agent"
+    db_chain = SQLDatabaseChain.from_llm(
+        llm, db, verbose=False, return_intermediate_steps=True
     )
 
-    return query_description, sql_query, query_result
+    result = db_chain(prompt)
+
+    sql_query = result["intermediate_steps"][1]
+    data = eval(result["intermediate_steps"][3])
+    summary = result["intermediate_steps"][5]
+
+    return summary, sql_query, data
 
 
-""" gr.Interface method example
-app = gr.Interface(
-    nl_to_sql,
-    inputs=gr.Textbox(placeholder="What would you like to know?", lines=1, label="Question:"),
-    outputs=[gr.Textbox(lines=1, label="Data summary:"), gr.DataFrame(label="Data:")],
-    examples=examples,
-) """
-
-callback = gr.CSVLogger() # See docs: https://gradio.app/using-flagging/#flagging-with-blocks
+callback = (
+    gr.CSVLogger()
+)  # See docs: https://gradio.app/using-flagging/#flagging-with-blocks
 
 with gr.Blocks() as app:
-
-    gr.Markdown(Path('description.md').read_text())
+    gr.Markdown(Path("description.md").read_text())
 
     with gr.Row():
         with gr.Column():
             summ_out = gr.Textbox(lines=3, interactive=False, label="Data summary:")
-            inp = gr.Textbox(placeholder="What would you like to know?", lines=1, label="Question:")
+            inp = gr.Textbox(
+                placeholder="What would you like to know?", lines=1, label="Question:"
+            )
             with gr.Row():
                 btn_run = gr.Button("Submit", variant="primary")
                 btn_flag = gr.Button("Flag")
@@ -54,12 +50,19 @@ with gr.Blocks() as app:
 
     with gr.Row():
         with gr.Accordion("Raw Data", open=False):
-            sql_out = gr.TextArea(lines=1, interactive=False, label="SQL query:") # Probably unnecessary other than for debugging
+            sql_out = gr.TextArea(
+                lines=1, interactive=False, label="SQL query:"
+            )  # Probably unnecessary other than for debugging
             df_out = gr.DataFrame(interactive=False)
 
     callback.setup([inp, summ_out, sql_out, df_out], "flagged_data_points")
 
     btn_run.click(fn=nl_to_sql, inputs=inp, outputs=[summ_out, sql_out, df_out])
-    btn_flag.click(lambda *args: callback.flag(args), [inp, summ_out, sql_out, df_out], None, preprocess=False)
+    btn_flag.click(
+        lambda *args: callback.flag(args),
+        [inp, summ_out, sql_out, df_out],
+        None,
+        preprocess=False,
+    )
 
 app.launch()
