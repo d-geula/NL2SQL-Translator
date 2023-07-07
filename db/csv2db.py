@@ -1,6 +1,7 @@
-import pandas as pd
 import sqlite3
+from contextlib import closing
 
+import pandas as pd
 
 df = pd.read_csv("db/drivers.csv")
 
@@ -20,9 +21,5 @@ dtypes = {
     "url": "TEXT",
 }
 
-conn = sqlite3.connect("db/formula2.sqlite")
-
-# Write the DataFrame to an SQLite table
-df.to_sql("drivers", conn, index=False, if_exists="replace", dtype=dtypes)
-
-conn.close()
+with closing(sqlite3.connect("db/formula1.sqlite")) as conn:
+    df.to_sql("drivers", conn, index=False, if_exists="replace", dtype=dtypes)
