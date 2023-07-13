@@ -1,8 +1,19 @@
 from pathlib import Path
 
+import pandas as pd
 import gradio as gr
 
+from nl2sql.utils import extract_columns, format_query
 from nl2sql.sql_chain import sql_chain
+
+
+def handle_input(input: str):
+    answer, sql_query, sql_results = sql_chain(input)
+
+    formatted_query = format_query(sql_query)
+    df = pd.DataFrame(sql_results, columns=extract_columns(sql_query))
+
+    return answer, formatted_query, df
 
 
 examples = [
@@ -31,15 +42,13 @@ with gr.Blocks() as app:
 
     with gr.Row():
         with gr.Accordion("Raw Data", open=False):
-            sql_query = gr.TextArea(
-                lines=1, interactive=False, label="SQL query:"
-            )  # Probably unnecessary other than for debugging
+            sql_query = gr.Markdown()
             sql_results = gr.DataFrame(interactive=False)
 
     callback.setup([inp, answer_out, sql_query, sql_results], "flagged_data_points")
 
     btn_run.click(
-        fn=sql_chain, inputs=inp, outputs=[answer_out, sql_query, sql_results]
+        fn=handle_input, inputs=inp, outputs=[answer_out, sql_query, sql_results]
     )
     btn_flag.click(
         lambda *args: callback.flag(args),  # type: ignore
