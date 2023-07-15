@@ -152,4 +152,3 @@ cython_debug/
 #.idea/
 .vscode
 flagged_data_points
-db/formula1.sqlite
