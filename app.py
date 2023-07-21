@@ -5,15 +5,19 @@ import gradio as gr
 
 from nl2sql.utils import extract_columns, format_query
 from nl2sql.sql_chain import sql_chain
+from nl2sql.enahnced_summary import enhanced_summary
 
 
 def handle_input(input: str):
-    answer, sql_query, sql_results = sql_chain(input)
+    _, sql_query, sql_results = sql_chain(input)
+
+    docs = Path("docs/martin_brundle.txt").read_text()
 
     formatted_query = format_query(sql_query)
     df = pd.DataFrame(sql_results, columns=extract_columns(sql_query))
+    summary = enhanced_summary(docs, input, sql_results)
 
-    return answer, formatted_query, df
+    return summary, formatted_query, df
 
 
 examples = [
