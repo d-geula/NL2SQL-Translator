@@ -2,7 +2,6 @@ import ast
 
 from langchain import SQLDatabase, SQLDatabaseChain
 from langchain.chat_models import ChatOpenAI
-from langchain.llms.base import LLM
 
 
 def sql_chain(input: str):
@@ -22,4 +21,4 @@ def sql_chain(input: str):
     return answer, sql_query, sql_results
 
 def _create_llm():
-    return ChatOpenAI(model="gpt-3.5-turbo", temperature=0, verbose=True)
+    return ChatOpenAI(model="gpt-3.5-turbo", temperature=0, verbose=True) # type: ignore
