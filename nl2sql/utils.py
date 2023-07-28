@@ -5,7 +5,6 @@ from sqlparse.tokens import Wildcard
 def extract_columns(query):
     """Extracts the selected columns from a SQL query"""
     parsed = parse(query)[0]
-    print(parsed)
     select_items = []
 
     for token in parsed.tokens:
