@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from langchain.llms.fake import FakeListLLM
 
@@ -8,30 +10,27 @@ def llm():
         'SELECT "forename", "surname" FROM drivers WHERE "nationality" = \'Swedish\' LIMIT 5;',
         "Stefan Johansson, Slim Borgudd, Ronnie Peterson, Gunnar Nilsson, Conny Andersson",
     ]
-    llm = FakeListLLM(responses=response)
-
-    return llm
+    return FakeListLLM(responses=response)
 
 
-def test_nl_to_sql(llm):
+def test_sql_chain(llm):
     from nl2sql.sql_chain import sql_chain
 
-    answer, sql_query, sql_results = sql_chain(
-        "What are the names of the Swedish drivers?", llm
-    )
+    with patch("nl2sql.sql_chain._create_llm", return_value=llm):
+        answer, sql_query, sql_results = sql_chain("Who are the Swedish drivers?")
 
-    assert (
-        answer
-        == "Stefan Johansson, Slim Borgudd, Ronnie Peterson, Gunnar Nilsson, Conny Andersson"
-    )
-    assert (
-        sql_query
-        == 'SELECT "forename", "surname" FROM drivers WHERE "nationality" = \'Swedish\' LIMIT 5;'
-    )
-    assert sql_results == [
-        ("Stefan", "Johansson"),
-        ("Slim", "Borgudd"),
-        ("Ronnie", "Peterson"),
-        ("Gunnar", "Nilsson"),
-        ("Conny", "Andersson"),
-    ]
+        assert (
+            answer
+            == "Stefan Johansson, Slim Borgudd, Ronnie Peterson, Gunnar Nilsson, Conny Andersson"
+        )
+        assert (
+            sql_query
+            == 'SELECT "forename", "surname" FROM drivers WHERE "nationality" = \'Swedish\' LIMIT 5;'
+        )
+        assert sql_results == [
+            ("Stefan", "Johansson"),
+            ("Slim", "Borgudd"),
+            ("Ronnie", "Peterson"),
+            ("Gunnar", "Nilsson"),
+            ("Conny", "Andersson"),
+        ]
