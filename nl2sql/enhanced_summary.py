@@ -7,7 +7,7 @@ from langchain.prompts import (
 
 
 def enhanced_summary(docs: str, user_query: str, sql_results: list):
-    chat = ChatOpenAI(temperature=0.0, verbose=True) # type: ignore
+    chat = ChatOpenAI(temperature=0.0, verbose=True)  # type: ignore
 
     template = """
     Given a user query and a table of results, use the extra context \

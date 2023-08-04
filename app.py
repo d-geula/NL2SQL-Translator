@@ -5,7 +5,7 @@ import gradio as gr
 
 from nl2sql.utils import extract_columns, format_query
 from nl2sql.sql_chain import sql_chain
-from nl2sql.enahnced_summary import enhanced_summary
+from nl2sql.enhanced_summary import enhanced_summary
 
 
 def handle_input(input: str):
