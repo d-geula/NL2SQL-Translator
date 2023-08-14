@@ -11,7 +11,7 @@ from langchain.prompts import (
 def summary_category_extractor(summary: str, question_1: str, question_2: str):
     chat = ChatOpenAI(temperature=0.0, verbose=True)  # type: ignore
 
-    langchain.llm_cache = SQLiteCache(database_path="tests/test_cache.db")
+    langchain.llm_cache = SQLiteCache(database_path="cache/.langchain.db")
 
     system_template = """
     This function extracts categories from a generated summary based on the questions provided.
