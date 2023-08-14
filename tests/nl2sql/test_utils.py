@@ -17,11 +17,11 @@ TEST_QUERIES = [
 
 EXPECTED_COLUMNS = [
     ['name', 'age'],
-    ['*'],
+    None,
     ['COUNT(*)'],
     ['AVG(price)', 'MAX(price)', 'MIN(price)'],
     ['name', 'age', 'COUNT(*)'],
-    ['*'],
+    None,
     ['AVG(price)', 'MAX(price)', 'MIN(price)'],
     ['name', 'age', 'COUNT(*)'],
     ['full_name', 'age'],

@@ -5,7 +5,6 @@ from sqlparse.tokens import Wildcard
 def extract_columns(query):
     """Extracts the selected columns from a SQL query"""
     parsed = parse(query)[0]
-    print(parsed)
     select_items = []
 
     for token in parsed.tokens:
@@ -22,12 +21,11 @@ def extract_columns(query):
         if " AS " in item:
             select_items[i] = item.split(" AS ")[1]
 
-    return select_items
+    return None if all(item == "*" for item in select_items) else select_items
 
 
 def format_query(sql):
     """Formats a SQL query and returns it as a markdown code block"""
     beautified =  format(sql, reindent=True, keyword_case="upper")
-    md_code_block = f"```\n{beautified}\n```"
 
-    return md_code_block
+    return f"```\n{beautified}\n```"
