@@ -11,7 +11,7 @@ from langchain.prompts import (
 def enhanced_summary(docs: str, user_query: str, sql_results: list):
     chat = ChatOpenAI(temperature=0.0, verbose=True)  # type: ignore
 
-    langchain.llm_cache = SQLiteCache(database_path="cache/.langchain.db")
+    langchain.llm_cache = SQLiteCache(database_path="nl2sql/cache.db")
 
     template = """
     Given a user query and a table of results, use the extra context \
