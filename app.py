@@ -1,21 +1,18 @@
-from pathlib import Path
-
-import pandas as pd
 import gradio as gr
+import pandas as pd
 
-from nl2sql.utils import extract_columns, format_query
+from nl2sql.expand_on_results import expand_on_results
 from nl2sql.sql_chain import sql_chain
-from nl2sql.enhanced_summary import enhanced_summary
+from nl2sql.utils import extract_columns, format_query
 
 
 def handle_input(input: str):
     _, sql_query, sql_results = sql_chain(input)
 
-    docs = Path("docs/martin_brundle.txt").read_text()
-
     formatted_query = format_query(sql_query)
+    docs = "docs/martin_brundle.txt"
     df = pd.DataFrame(sql_results, columns=extract_columns(sql_query))
-    summary = enhanced_summary(docs, input, sql_results)
+    summary = expand_on_results(docs, input, sql_results)
 
     return summary, formatted_query, df
 

@@ -1,14 +1,17 @@
+from pathlib import Path
+from typing import Union
+
 import langchain
 from langchain.cache import SQLiteCache
 from langchain.chat_models import ChatOpenAI
-from langchain.prompts import (
-    ChatPromptTemplate,
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-)
+from langchain.prompts import (ChatPromptTemplate, HumanMessagePromptTemplate,
+                               SystemMessagePromptTemplate)
 
 
-def enhanced_summary(docs: str, user_query: str, sql_results: list):
+def expand_on_results(docs: Union[str, list], user_query: str, sql_results):
+    if isinstance(docs, str):
+        docs = [docs]
+
     chat = ChatOpenAI(temperature=0.0, verbose=True)  # type: ignore
 
     langchain.llm_cache = SQLiteCache(database_path="cache/.langchain.db")
@@ -32,6 +35,8 @@ def enhanced_summary(docs: str, user_query: str, sql_results: list):
 
     return chat(
         chat_prompt.format_prompt(
-            docs=docs, user_query=user_query, sql_results=sql_results
+            docs=[Path(doc).read_text() for doc in docs],
+            user_query=user_query,
+            sql_results=sql_results,
         ).to_messages()
     ).content
