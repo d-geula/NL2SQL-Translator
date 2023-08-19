@@ -1,4 +1,5 @@
 import ast
+from textwrap import dedent
 
 import langchain
 from langchain.cache import SQLiteCache
@@ -12,7 +13,7 @@ def assert_summary_using_qa(summary: str, questions_and_answers: dict):
 
     langchain.llm_cache = SQLiteCache(database_path="cache/.langchain.db")
 
-    system_template = """
+    system_template = dedent("""
     This function extracts categories from a generated summary based on the questions provided.
 
     Args:
@@ -28,12 +29,11 @@ def assert_summary_using_qa(summary: str, questions_and_answers: dict):
 
         "Question1": "Value1",
         "Question2": "Value2",
-        ...
-        """
+        ...""")
 
-    human_template = """
+    human_template = dedent("""
     summary: {summary}
-    questions: {questions}"""
+    questions: {questions}""")
 
     system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
     human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
@@ -41,15 +41,14 @@ def assert_summary_using_qa(summary: str, questions_and_answers: dict):
         [system_message_prompt, human_message_prompt]
     )
 
-    # Convert the chat result to a dictionary
-    result = ast.literal_eval(chat(
+    chat_response = chat(
         chat_prompt.format_prompt(
             summary=summary, questions=list(questions_and_answers.keys())
         ).to_messages()
-    ).content)
+    ).content
+    
+    parsed_response = ast.literal_eval(chat_response)
 
     for question, expected_answer in questions_and_answers.items():
-        answer = result[question]
-        if isinstance(answer, list) and len(answer) == 1:
-            answer = answer[0]
+        answer = parsed_response[question]
         assert answer == expected_answer
