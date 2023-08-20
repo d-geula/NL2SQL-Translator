@@ -10,7 +10,7 @@ def handle_input(input: str):
 
     formatted_query = format_query(sql_query)
     docs = "docs/martin_brundle.txt"
-    summary = expand_on_results(docs, input, sql_results.to_dict(orient="records"))
+    summary = expand_on_results(docs, input, sql_results)
 
     return summary, formatted_query, sql_results
 

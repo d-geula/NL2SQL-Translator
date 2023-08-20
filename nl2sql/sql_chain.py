@@ -1,4 +1,4 @@
-from nl2sql.utils import execute_query_and_return_df
+from nl2sql.utils import execute_query
 
 from langchain import SQLDatabase, SQLDatabaseChain
 from langchain.chat_models import ChatOpenAI
@@ -15,7 +15,7 @@ def sql_chain(input: str):
     result = db_chain(input)
 
     sql_query = result["intermediate_steps"][1]
-    sql_results = execute_query_and_return_df(sql_query, db_path)
+    sql_results = execute_query(sql_query, db_path)
 
     return sql_query, sql_results
 

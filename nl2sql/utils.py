@@ -5,7 +5,7 @@ import pandas as pd
 from sqlparse import format
 
 
-def execute_query_and_return_df(sql_query: str, db_path: str) -> pd.DataFrame:
+def execute_query(sql_query: str, db_path: str) -> pd.DataFrame:
     with closing(sqlite3.connect(db_path)) as conn:
         return pd.read_sql_query(sql_query, conn)
 
@@ -18,6 +18,3 @@ def format_query(sql: str) -> str:
     except Exception as e:
         print(f"An error occurred while formatting the SQL query: {e}")
         return sql
-
-df = execute_query_and_return_df("SELECT * FROM drivers LIMIT 1;", "db/formula1.sqlite")
-print(df.values)

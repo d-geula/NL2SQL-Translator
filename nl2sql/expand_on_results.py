@@ -1,15 +1,16 @@
 from pathlib import Path
-from typing import Union
 from textwrap import dedent
+from typing import Union
 
 import langchain
+import pandas as pd
 from langchain.cache import SQLiteCache
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import (ChatPromptTemplate, HumanMessagePromptTemplate,
                                SystemMessagePromptTemplate)
 
 
-def expand_on_results(docs: Union[str, list], user_query: str, sql_results: list[dict]) -> str:
+def expand_on_results(docs: Union[str, list], user_query: str, sql_results: pd.DataFrame) -> str:
     if isinstance(docs, str):
         docs = [docs]
 
@@ -38,6 +39,6 @@ def expand_on_results(docs: Union[str, list], user_query: str, sql_results: list
         chat_prompt.format_prompt(
             docs="\n\n".join([Path(doc).read_text() for doc in docs]),
             user_query=user_query,
-            sql_results=sql_results,
+            sql_results=sql_results.to_dict(orient="records"),
         ).to_messages()
     ).content

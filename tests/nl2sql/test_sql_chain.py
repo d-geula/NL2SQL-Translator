@@ -21,13 +21,18 @@ def test_sql_chain(llm):
     with patch("nl2sql.sql_chain._create_llm", return_value=llm):
         sql_query, sql_results = sql_chain("Who are the Swedish drivers?")
 
+        sql_results = sql_results.sort_values(["forename", "surname"])
+
         assert (
             sql_query
             == 'SELECT "forename", "surname" FROM drivers WHERE "nationality" = \'Swedish\' LIMIT 5;'
         )
 
-        expected_results = pd.DataFrame({
-            "forename": ["Stefan", "Slim", "Ronnie", "Gunnar", "Conny"],
-            "surname": ["Johansson", "Borgudd", "Peterson", "Nilsson", "Andersson"]
-        })
+        expected_results = pd.DataFrame(
+            {
+                "forename": ["Stefan", "Slim", "Ronnie", "Gunnar", "Conny"],
+                "surname": ["Johansson", "Borgudd", "Peterson", "Nilsson", "Andersson"],
+            }
+        )
+        expected_results = expected_results.sort_values(["forename", "surname"])
         assert_frame_equal(sql_results, expected_results)
