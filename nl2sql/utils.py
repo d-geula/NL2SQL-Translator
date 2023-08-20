@@ -1,31 +1,20 @@
-from sqlparse import format, parse, sql
-from sqlparse.tokens import Wildcard
+import sqlite3
+from contextlib import closing
+
+import pandas as pd
+from sqlparse import format
 
 
-def extract_columns(query):
-    """Extracts the selected columns from a SQL query"""
-    parsed = parse(query)[0]
-    select_items = []
-
-    for token in parsed.tokens:
-        if (
-            isinstance(token, sql.Identifier)
-            or isinstance(token, sql.IdentifierList)
-            or isinstance(token, sql.Function)
-            or token.ttype is Wildcard
-        ):
-            select_items = str(token).split(", ")
-            break
-
-    for i, item in enumerate(select_items):
-        if " AS " in item:
-            select_items[i] = item.split(" AS ")[1]
-
-    return None if all(item == "*" for item in select_items) else select_items
+def execute_query(sql_query: str, db_path: str) -> pd.DataFrame:
+    with closing(sqlite3.connect(db_path)) as conn:
+        return pd.read_sql_query(sql_query, conn)
 
 
-def format_query(sql):
-    """Formats a SQL query and returns it as a markdown code block"""
-    beautified =  format(sql, reindent=True, keyword_case="upper")
-
-    return f"```\n{beautified}\n```"
+def format_query(sql: str) -> str:
+    try:
+        formatted_sql_query = format(sql, reindent=True, keyword_case="upper")
+        markdown_code_block = f"```\n{formatted_sql_query}\n```"
+        return markdown_code_block
+    except Exception as e:
+        print(f"An error occurred while formatting the SQL query: {e}")
+        return sql

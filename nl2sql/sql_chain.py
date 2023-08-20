@@ -1,4 +1,4 @@
-import ast
+from nl2sql.utils import execute_query
 
 from langchain import SQLDatabase, SQLDatabaseChain
 from langchain.chat_models import ChatOpenAI
@@ -15,10 +15,9 @@ def sql_chain(input: str):
     result = db_chain(input)
 
     sql_query = result["intermediate_steps"][1]
-    sql_results = ast.literal_eval(result["intermediate_steps"][3])
-    answer = result["intermediate_steps"][5]
+    sql_results = execute_query(sql_query, db_path)
 
-    return answer, sql_query, sql_results
+    return sql_query, sql_results
 
 
 def _create_llm():

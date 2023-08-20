@@ -1,7 +1,9 @@
 from unittest.mock import patch
 
+import pandas as pd
 import pytest
 from langchain.llms.fake import FakeListLLM
+from pandas.testing import assert_frame_equal
 
 
 @pytest.fixture
@@ -17,20 +19,20 @@ def test_sql_chain(llm):
     from nl2sql.sql_chain import sql_chain
 
     with patch("nl2sql.sql_chain._create_llm", return_value=llm):
-        answer, sql_query, sql_results = sql_chain("Who are the Swedish drivers?")
+        sql_query, sql_results = sql_chain("Who are the Swedish drivers?")
 
-        assert (
-            answer
-            == "Stefan Johansson, Slim Borgudd, Ronnie Peterson, Gunnar Nilsson, Conny Andersson"
-        )
+        sql_results = sql_results.sort_values(["forename", "surname"])
+
         assert (
             sql_query
             == 'SELECT "forename", "surname" FROM drivers WHERE "nationality" = \'Swedish\' LIMIT 5;'
         )
-        assert sql_results == [
-            ("Stefan", "Johansson"),
-            ("Slim", "Borgudd"),
-            ("Ronnie", "Peterson"),
-            ("Gunnar", "Nilsson"),
-            ("Conny", "Andersson"),
-        ]
+
+        expected_results = pd.DataFrame(
+            {
+                "forename": ["Stefan", "Slim", "Ronnie", "Gunnar", "Conny"],
+                "surname": ["Johansson", "Borgudd", "Peterson", "Nilsson", "Andersson"],
+            }
+        )
+        expected_results = expected_results.sort_values(["forename", "surname"])
+        assert_frame_equal(sql_results, expected_results)
