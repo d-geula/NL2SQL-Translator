@@ -16,7 +16,7 @@ def test_expand_on_results():
                     "forename": "Martin",
                     "surname": "Brundle",
                     "dob": "1959-06-01",
-                    "Nationality": "British",
+                    "nationality": "British",
                 }
             ]
         ),
