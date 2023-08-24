@@ -9,14 +9,16 @@ def test_expand_on_results():
         docs="docs/martin_brundle.txt",
         user_query="Tell me about Martin Brundle",
         sql_results=pd.DataFrame(
-            {
-                "driverId": [84],
-                "driverRef": ["brundle"],
-                "forename": ["Martin"],
-                "surname": ["Brundle"],
-                "dob": ["1959-06-01"],
-                "nationality": ["British"],
-            }
+            [
+                {
+                    "driverId": 84,
+                    "driverRef": "brundle",
+                    "forename": "Martin",
+                    "surname": "Brundle",
+                    "dob": "1959-06-01",
+                    "nationality": "British",
+                }
+            ]
         ),
     )
 
@@ -26,5 +28,6 @@ def test_expand_on_results():
             "Who is this summary about?": "Martin Brundle",
             "Are they known for being a commentator?": "Yes",
             "Are they known for being a driver?": "Yes",
+            "Did they win an F1 championship?": "No",
         },
     )

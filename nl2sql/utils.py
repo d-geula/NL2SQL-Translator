@@ -11,10 +11,7 @@ def execute_query(sql_query: str, db_path: str) -> pd.DataFrame:
 
 
 def format_query(sql: str) -> str:
-    try:
-        formatted_sql_query = format(sql, reindent=True, keyword_case="upper")
-        markdown_code_block = f"```\n{formatted_sql_query}\n```"
+        formatted_query = format(sql, reindent=True, keyword_case="upper")
+        markdown_code_block = f"```\n{formatted_query}\n```"
+
         return markdown_code_block
-    except Exception as e:
-        print(f"An error occurred while formatting the SQL query: {e}")
-        return sql
